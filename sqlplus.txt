@@ -1,0 +1,18 @@
+sqlplus glogin 설정
+SET sqlprompt "_USER'@'_CONNECT_IDENTIFIER> "
+SET linesize 400 
+SET pagesize 200
+
+계정변경
+conn system/dba
+conn sys/dba as sysdba
+
+계정생성 kim생성
+SYSTEM@XE> create user kim
+  2  identified by bob
+  3  default tablespace users
+  4  temporary tablespace temp;
+
+kim에게 권한부여
+grant create session,resource,unlimited tablespace to kim;
+
