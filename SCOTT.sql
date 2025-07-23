@@ -11,7 +11,6 @@ SELECT * FROM BONUS;
 
 SELECT EMPNO,ENAME,JOB,SAL FROM EMP WHERE SAL >= 3000;
 
- 
 
 --3. EMP 테이블에서 사원번호가 7782인 사원의 이름과 부서번호를 출력하는 SELECT 문장을 작성하시오.
 
@@ -29,11 +28,11 @@ SELECT * FROM EMP WHERE DEPTNO IN(10,20) ORDER BY ENAME;
 
 --6. EMP 테이블에서 급여가 1500이상이고 부서번호가 10,30인 사원의 이름과 급여를 출력하는 SELECT 문장을 작성하여라. 단 HEADING을 Employee과 Monthly Salary로 출력하여라.
 
- SELECT ENAME Employee,SAL Monthly_Salary FROM EMP WHERE SAL >= 1500 AND DEPTNO IN(10,30);
+ SELECT ENAME Employee,SAL "Monthly Salary" FROM EMP WHERE SAL >= 1500 AND DEPTNO IN(10,30);
 
 --7. EMP 테이블에서 1982년에 입사한 사원의 모든 정보를 출력하는 SELECT 문을 작성하여라.
 
- SELECT * FROM EMP WHERE HIREDATE LIKE '82%';
+SELECT * FROM EMP WHERE HIREDATE LIKE '82%';
 
 --8. EMP 테이블에서 COMM에 NULL이 아닌 사원의 모든 정보를 출력하는 SELECT 문을 작성하여라.
 
@@ -50,3 +49,78 @@ SELECT * FROM EMP WHERE JOB IN('CLERK','ANALYST') AND SAL NOT IN(1000,3000,5000)
 --11. EMP 테이블에서 이름에 L이 두 자가 있고  부서가 30이거나 또는 관리자가 7782인 사원의 모든 정보를 출력하는 SELECT 문을 작성하여라.
 
 SELECT * FROM EMP WHERE ENAME LIKE '%L%L%' AND (DEPTNO = 30 OR MGR = 7782);
+
+-------------------------------------------------------------------------------------------
+
+--1. 현재 날짜를 출력하고 열 레이블은 Current Date로 출력하는 SELECT 문장을 기술하시오.
+
+SELECT SYSDATE "CURRENT DATE" FROM DUAL;
+
+
+--2. EMP 테이블에서 현재 급여에 15%가 증가된 급여를 사원번호,이름,업무,급여,증가된 급여(New Salary),증가액(Increase)를 출력하는 SELECT 문장을 기술하시오.
+
+SELECT * FROM EMP;
+
+SELECT EMPNO,ENAME,JOB,SAL,SAL*1.15 "NEW SALARY",SAL*0.15 "INCREASE" FROM EMP;
+
+--3. EMP 테이블에서 이름,입사일,입사일로부터 6개월 후 돌아오는 월요일 구하여 출력하는 SELECT 문장을 기술하시오.
+
+SELECT * FROM EMP;
+
+SELECT ENAME,HIREDATE,NEXT_DAY(ADD_MONTHS(HIREDATE,6),'월요일') "입사 6개월차" FROM EMP;
+
+
+--4. EMP 테이블에서 이름,입사일, 입사일로부터 현재까지의 월수,급여, 입사일부터 현재까지의 급여의 총계를 출력하는 SELECT 문장을 기술하시오.
+
+SELECT * FROM EMP;
+
+SELECT ENAME,HIREDATE,ROUND(MONTHS_BETWEEN(SYSDATE,HIREDATE)) "현재까지 월수", SAL ,ROUND(MONTHS_BETWEEN(SYSDATE,HIREDATE))*SAL "월급 총계" FROM EMP;
+
+
+--5. EMP 테이블에서 다음의 결과가 출력되도록 작성하시오.
+
+--Dream Salary
+
+--------------------------------------------------------------
+--
+--KING earns $5,000.00 monthly but wants $15,000.00
+--
+--BLAKE earns $2,850.00 monthly but wants $8,550.00
+--
+--CLARK earns $2,450.00 monthly but wants $7,350.00
+--
+--. . . . . . . . . .
+
+--14 rows selected
+ 
+SELECT * FROM EMP;
+
+SELECT CONCAT(ENAME,CONCAT(' earns',TO_CHAR(SAL,'$9999.99')))||TO_CHAR(' monthly but wants')||TO_CHAR(SAL*3,'$99,999.99') "DREAM SALARY" FROM EMP;
+ 
+
+--6. EMP 테이블에서 모든 사원의 이름과 급여(15자리로 출력 좌측의 빈곳은 “*”로 대치)를 출력하는 SELECT 문장을 기술하시오.
+
+ SELECT * FROM EMP;
+ 
+ SELECT ENAME,LPAD(SAL,15,'*') FROM EMP;
+
+--7. EMP 테이블에서 모든 사원의 정보를 이름,업무,입사일,입사한 요일을 출력하는 SELECT 문장을 기술하시오.
+
+SELECT * FROM EMP;
+
+SELECT ENAME,JOB,HIREDATE,DECODE(TO_CHAR(HIREDATE,'D'),'1','일요일','2','월요일','3','화요일','4','수요일','5','목요일','6','금요일','토요일') "입사한 요일" FROM EMP; 
+
+--8. EMP 테이블에서 이름의 길이가 6자 이상인 사원의 정보를 이름,이름의 글자수,업무를 출력하는 SELECT 문장을 기술하시오.
+
+ SELECT * FROM EMP;
+ 
+ SELECT ENAME,LENGTH(ENAME), JOB FROM EMP WHERE LENGTH(ENAME) >= 6; 
+
+--9. EMP 테이블에서 모든 사원의 정보를 이름,업무,급여,보너스,급여+보너스를 출력하는 SELECT 문장을 기술하시오.
+
+SELECT * FROM EMP;
+
+SELECT ENAME,JOB,SAL,COMM,SAL+ NVL(COMM,0) FROM EMP;
+
+
+
