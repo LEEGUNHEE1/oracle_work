@@ -110,6 +110,8 @@ SELECT * FROM EMP;
 
 SELECT ENAME,JOB,HIREDATE,DECODE(TO_CHAR(HIREDATE,'D'),'1','일요일','2','월요일','3','화요일','4','수요일','5','목요일','6','금요일','토요일') "입사한 요일" FROM EMP; 
 
+SELECT ENAME,JOB,HIREDATE,TO_CHAR(HIREDATE,'DAY') "입사요일"
+FROM EMP; 
 --8. EMP 테이블에서 이름의 길이가 6자 이상인 사원의 정보를 이름,이름의 글자수,업무를 출력하는 SELECT 문장을 기술하시오.
 
  SELECT * FROM EMP;
@@ -121,6 +123,128 @@ SELECT ENAME,JOB,HIREDATE,DECODE(TO_CHAR(HIREDATE,'D'),'1','일요일','2','월요일'
 SELECT * FROM EMP;
 
 SELECT ENAME,JOB,SAL,COMM,SAL+ NVL(COMM,0) FROM EMP;
+
+
+------------------------------------------------------------------------------------------------------------------
+--SELECT * FROM CUSTOM;
+--SELECT 
+--case SEX 
+--when '1' then '남자'
+--when '0' then '여자'
+--end gender,
+--COUNT(*) 인원수 FROM CUSTOM
+--GROUP BY SEX;
+--
+--WHEN '1' THEN '남자' ELSE '여자'
+--
+--SELECT 
+--CASE 컬럼명                         
+--	WHEN 1 THEN 100                          
+--	WHEN 2 THEN 200                         
+--	WHEN 3 THEN 300                         
+--	WHEN 4 THEN 400                          
+--	ELSE 500                        
+--END AS RESULT             
+--FROM DUAL;
+
+
+--1. EMP 테이블에서 인원수,최대 급여,최소 급여,급여의 합을 계산하여 출력하는 SELECT 문장을 작성하여라.
+
+SELECT * FROM EMP;
+
+SELECT COUNT(*) 인원수, MAX(SAL) 최대급여, MIN(SAL) 최소급여,SUM(SAL) "급여의 합" FROM EMP;
+
+--2. EMP 테이블에서 각 업무별로 최대 급여,최소 급여,급여의 합을 출력하는 SELECT 문장을 작성하여라.
+
+SELECT * FROM EMP;
+
+ SELECT JOB, MAX(SAL) 최대급여, MIN(SAL) 최소급여,SUM(SAL) "급여의 합" FROM EMP GROUP BY JOB;
+
+--3. EMP 테이블에서 업무별 인원수를 구하여 출력하는 SELECT 문장을 작성하여라.
+
+SELECT * FROM EMP;
+
+SELECT JOB,COUNT(*) 인원수 FROM EMP GROUP BY JOB;
+ 
+
+--4. EMP 테이블에서 최고 급여와 최소 급여의 차이는 얼마인가 출력하는 SELECT 문장을 작성하여라.
+
+SELECT * FROM EMP;
+
+SELECT MAX(SAL)-MIN(SAL) 급여차 FROM EMP;
+
+--5. EMP 테이블에서 아래의 결과를 출력하는 SELECT 문장을 작성하여라.(group by)
+--
+--H_YEAR  COUNT(*)  MIN(SAL)  MAX(SAL)  AVG(SAL)  SUM(SAL)
+--
+-------- --------- --------- --------- --------- ---------
+--
+--    81       10       950      5000    2282.5	  22825
+--
+--    82        1      1300      1300      1300      1300
+--
+--    80        1       800       800       800       800
+ 
+
+SELECT * FROM EMP;
+
+SELECT TO_CHAR(HIREDATE,'YY') H_YEAR,COUNT(TO_CHAR(HIREDATE,'YY')) "COUNT(*)",
+MIN(SAL),MAX(SAL),AVG(SAL),SUM(SAL) FROM EMP GROUP BY TO_CHAR(HIREDATE,'YY');
+
+--6. EMP 테이블에서 아래의 결과를 출력하는 SELECT 문장을 작성하여라.(case,sum)
+--
+--    TOTAL      1980      1981      1982      1983
+--
+----------- --------- --------- --------- ---------
+--
+--       12         1        10         1         0
+ 
+SELECT * FROM EMP;
+
+SELECT CASE EXTRACT(YEAR FROM HIREDATE)
+WHEN 1980 THEN 1 ELSE 0 END "1980" FROM EMP;
+
+SELECT CASE EXTRACT(YEAR FROM HIREDATE)
+WHEN 1981 THEN 1 ELSE 0 END "1981" FROM EMP;
+
+SELECT CASE EXTRACT(YEAR FROM HIREDATE)
+WHEN 1982 THEN 1 ELSE 0 END "1982" FROM EMP;
+
+SELECT CASE EXTRACT(YEAR FROM HIREDATE)
+WHEN 1983 THEN 1 ELSE 0 END "1983" FROM EMP;
+
+
+SELECT COUNT(*) TOTAL,
+SUM(CASE EXTRACT(YEAR FROM HIREDATE)WHEN 1980 THEN 1 ELSE 0 END) "1980",
+SUM(CASE EXTRACT(YEAR FROM HIREDATE)WHEN 1981 THEN 1 ELSE 0 END) "1981",
+SUM(CASE EXTRACT(YEAR FROM HIREDATE)WHEN 1982 THEN 1 ELSE 0 END) "1982",
+SUM(CASE EXTRACT(YEAR FROM HIREDATE)WHEN 1983 THEN 1 ELSE 0 END) "1983"
+FROM EMP;
+
+
+--7. EMP 테이블에서 아래의 결과를 출력하는 SELECT 문장을 작성하여라.(CASE,SUM)
+--
+--JOB         Deptno 10    Deptno 20     Deptno 30     Total
+--
+-----------   ---------    ---------     ---------     ---------
+--
+--CLERK          1300         1900          950          4150
+--
+--SALESMAN                                 5600          5600
+--
+--PRESIDENT	    5000                                     5000
+--
+--MANAGER	    2450          2975          2850         8275
+--
+--ANALYST	                 3000                        3000
+
+SELECT * FROM EMP;
+
+SELECT JOB ,
+SUM(CASE DEPTNO WHEN 10 THEN SAL END) DEPTNO10,
+SUM(CASE DEPTNO WHEN 20 THEN SAL END) DEPTNO20,
+SUM(CASE DEPTNO WHEN 30 THEN SAL END) DEPTNO30,
+SUM(SAL) FROM EMP GROUP BY JOB;
 
 
 
