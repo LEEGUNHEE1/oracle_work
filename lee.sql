@@ -389,15 +389,26 @@ DESC 사원;
 
 SELECT * FROM TABS ;
 
+----------------------------------------------------------------------
+--함수
+
+SELECT * FROM 사원;
+DESC 사원;
+
+SELECT 사원번호,사원명,직급,급여,커미션,F_TAX(2001) TAX FROM 사원 WHERE 사원번호=2001;
+
+SELECT P_OUTEX(2001) FROM 사원;
 
 
+VARIABLE NAME VARCHAR2(20);
+VARIABLE PAY NUMBER;
+VARIABLE COMM NUMBER;
+EXEC P_OUTEX(2001,:NAME,:PAY,:COMM);
+/
+SELECT :NAME,:PAY,:COMM FROM DUAL;
 
 
-
-
-
-
-
+COMMIT;
 
 
 
