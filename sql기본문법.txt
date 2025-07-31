@@ -1,0 +1,246 @@
+﻿프롬프트 바꾸기
+C:\app\digulx2\product\11.2.0\dbhome_1\sqlplus\admin\glogin.sql
+
+SET sqlprompt "_USER'@'_CONNECT_IDENTIFIER> "      // 프롬프트 변경
+SET linesize 400       // 한 라인의 폭은 라인당 들어갈 수 있는 글자의 수
+SET pagesize 200       // 한 페이지에 표시 할 수 있는 라인수
+
+
+
+
+#0. 관리자계정 접속
+connect sys/dba as SYSDBA
+
+
+#0. 접속 종료
+disconnect : 계정만 종료
+exit : 계정 종료후 sqlplus도 종료
+
+#1. 사용자계정 생성(계정명,암호 대소문자 구분)
+CREATE USER SUZI
+IDENTIFIED BY A123
+DEFAULT TABLESPACE USERS
+TEMPORARY TABLESPACE TEMP;
+
+
+#2. 권한부여
+GRANT CONNECT,RESOURCE,UNLIMITED TABLESPACE TO SUZI IDENTIFIED BY SUZI;
+
+#2. 생성 계정 접속
+connect SUZI/A123
+
+#3.1 테이블 생성
+#CREATE TABLE 테이블이름 (
+#     컬럼1 타입1,
+#     컬럼2 타입2,
+#     ....,
+#     컬럼n 타입n
+#);
+CREATE TABLE customer (
+       cust_id       VARCHAR2(4) PRIMARY KEY,
+       cust_name  VARCHAR2(10) NOT NULL,
+       password   VARCHAR2(10)  NOT NULL,
+       address      VARCHAR2(10),
+       birth_year   NUMBER(4),
+       phone       VARCHAR2(4),
+       email         VARCHAR2(30),
+       regist_date DATE       
+);
+
+#3.2 테이블 삭제
+#DROP TABLE 테이블이름;
+DROP TABLE customer;
+
+
+#4. 테이블 확인 명령
+#DESC 테이블이름;
+DESC customer;
+
+#5. 테이블 내용 조회
+#SELECT * FROM 테이블이름;
+
+#전체 컬럼 조회
+SELECT * FROM customer;
+
+#컬럼 선택적 조회
+SELECT cust_id, cust_name, address, phone, regist_date FROM customer;
+
+SELECT cust_id, cust_name, address, birth_year FROM customer;
+
+#조건 조회
+SELECT 컬럼이름1, 컬럼이름2,....
+FROM 테이블이름 
+WHERE 컬럼이름1='값1';
+
+#컬럼이름1의 데이터 타입이 VARCHAR2 타입이면 값1을 ''로 감싸준다.
+
+#컬럼이름1의 데이터 타입이 NUMBER 타입이면 값1을 그냥 숫자만 입력
+
+#VARCHAR2 타입 조건문
+SELECT cust_id, cust_name, address 
+ FROM customer 
+WHERE cust_id='c001';
+
+#NUMBER(숫자)타입 조건문
+SELECT cust_id, cust_name, address 
+ FROM customer 
+WHERE birth_year=1990;
+
+SELECT *
+ FROM customer 
+WHERE birth_year=1990;
+
+#없는 컬럼명 조회:결과 오류
+SELECT cust_address
+ FROM customer 
+WHERE birth_year=1990;
+
+#NUMBER 타입의 크기비교 조건 구문
+SELECT cust_id, cust_name, address 
+ FROM customer 
+WHERE birth_year > 1990;
+
+#BETWEEN ~ AND ~ 구문
+SELECT cust_id, cust_name, address 
+ FROM customer 
+WHERE birth_year BETWEEN 1990 AND 2000;
+
+#LIKE 구문의 사용, WHERE 절 안에 사용
+SELECT cust_name, cust_id, address 
+ FROM customer 
+WHERE address LIKE '역삼%';
+
+SELECT cust_name, cust_id, address 
+ FROM customer 
+WHERE address LIKE '%원';
+
+#WHERE 절 조건의 나열
+SELECT cust_name, cust_id, address 
+ FROM customer 
+WHERE address LIKE '%원'
+   AND cust_id='c001';
+
+
+#########################
+
+cmd
+
+sqlplus sys/dba as sysdba
+
+show user;
+
+계정만들기
+create user suzi
+identified by a123
+default tablespace users
+temporary tablespace temp;
+
+권한
+grant connect,resource,unlimited tablespace to suzi;
+
+sqlplus suzi/a123
+
+create table score
+(hak varchar2(7) primary key,
+name varchar2(20) not null,
+kor number(3) null,
+eng number(3),
+mat number(3));
+
+desc score;
+
+insert into score values ('a001','kim',30,60,70);
+
+select * from score;
+
+col name format a7;
+
+insert into score (hak,name,kor,mat) values ('a002','kim',60,70);
+
+insert into score values ('a003','kim',30,60,70);
+insert into score values ('a004','lee',40,70,80);
+insert into score values ('a005','cho',50,80,90);
+insert into score values ('a006','park',60,90,10);
+insert into score values ('a007','kim1',70,10,20);
+insert into score values ('a008','kim2',80,60,30);
+insert into score values ('a009','lee',90,30,40);
+insert into score values ('a0010','leel',10,40,50);
+
+
+select * from score;
+
+select hak,name,kor,eng,mat from score;
+
+select hak,name,kor from score;
+
+select kor,mat,name,hak from score;
+
+select hak as 학번,name 이름,kor 국어 from score;
+
+select rownum, hak,name from score;
+
+select * from score order by kor asc;
+
+select * from score order by mat desc;
+
+select * from score where eng=30;
+
+select * from score where name='kim';
+
+select * from score where kor >= 50;
+
+select * from score where eng <= 50;
+
+select * from score where kor>=50 and kor<=70;
+
+select * from score where kor>=50 or eng>=70;
+
+select rownum,hak,name,kor from score;
+
+select rownum,hak,name,kor from score where rownum <= 3;
+
+select rownum,hak,name,kor from score where rownum >=3 and rownum <=6;
+
+select * from (
+select rownum rnum, data.* from (
+select hak,name,kor,eng,mat from score) data)
+where rnum>=3 and rnum <=6;
+
+select * from score where name like 'ki%';
+
+update score set kor=100,eng=100 where hak = 'a001';
+
+delete score where hak = 'a0010';
+
+delete score;
+
+commit;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
