@@ -83,8 +83,65 @@ commit;
 
 
 
+-------------------------------------------------------------
+
+CREATE TABLE TEST1
+(ID NUMBER PRIMARY KEY, NAME VARCHAR2(10) NOT NULL);
+
+CREATE TABLE TEST2
+(ID NUMBER PRIMARY KEY,
+BIRTH DATE NOT NULL,CONSTRAINT TEST2_ID_FK FOREIGN KEY(ID) REFERENCES TEST1(ID));
+
+CREATE TABLE TEST3
+(ID NUMBER PRIMARY KEY,
+TEL VARCHAR2(10) NOT NULL,CONSTRAINT TEST3_ID_FK FOREIGN KEY(ID) REFERENCES TEST1(ID));
+
+select * from test1;
+select * from test2;
+select * from test3;
+
+desc test1;
+
+--------------------------------------------------------
+
+--다른 컴과 db연결
+--다 같은 계정이어야함
+
+--서버장만
+create table basicdata
+(id VARCHAR2(10) primary key,
+pwd VARCHAR2(20) not null,
+name VARCHAR2(20) nat null);
+
+INSERT INTO BASICDATA VALUES ('11','11','SUZI');
+COMMIT;
+SELECT * FROM BAISCDATA
+
+--클라이언트만,서버장과 링크 생성
+CREATE DATABASE LINK LINK_TEST CONNECT TO suzi identified by "a123"
+using '(description=(address=(protocol=tcp)(HOST =192.168.0.27)(PORT=1521))(CONNECT_DATA=(SERVICE_NAME=XE)))';
+--접속
+SELECT * FROM BASICDATA@LINK_TEST;
+
+INSERT INTO BASICDATA@LINK_TEST VALUES('ASD123','ZXC','QWE');
+--커밋해야 서버에 들어감
+COMMIT;
+
+--링크삭제
+DROP DATABASE LINK LINK_TEST;
 
 
 
+------------------------------------------------------
+create database link link_test
+connect to pj identified by "123"
+using '(description=(address=(protocol=tcp)
+(host=192.168.0.20)(port=1521))
+(connect_data=(service_name=xe)))';
 
-
+SELECT * FROM USERINFO@LINK_TEST;
+SELECT * FROM RESERVE@LINK_TEST;
+SELECT * FROM REVIEW@LINK_TEST;
+SELECT * FROM ROOM@LINK_TEST;
+SELECT * FROM DETAIL@LINK_TEST;
+SELECT * FROM GRADESALE@LINK_TEST;
