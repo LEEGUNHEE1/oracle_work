@@ -1,49 +1,100 @@
 ---------------------------------------------------
 --프로젝트
 --등급별 할인율
+
 CREATE TABLE GRADESALE
 (사용자등급 VARCHAR2(15) CONSTRAINT GRADESALE_GRADE_PK PRIMARY KEY,
 이용횟수 NUMBER(4), 할인율 NUMBER(15));
 
---사용자 정보
 CREATE TABLE USERINFO
 (ID VARCHAR2(10) CONSTRAINT USERINFO_ID_PK PRIMARY KEY,
-사용자이름 VARCHAR2(4) NOT NULL, 나이 NUMBER(3) NOT NULL,
-성별 VARCHAR2(3) NOT NULL, PW VARCHAR2(12) NOT NULL,
-주소 VARCHAR2(15), 상세주소 VARCHAR2(15),
-사용자등급 VARCHAR2(10) CONSTRAINT USERINFO_GRADE_FK REFERENCES GRADESALE(사용자등급));
---리뷰
-CREATE TABLE REVIEW
-(NO NUMBER(5) CONSTRAINT REVIEW_NO_PK PRIMARY KEY,
-ID VARCHAR2(10) CONSTRAINT REVIEW_ID_FK REFERENCES USERINFO(ID),
-내용 VARCHAR2(100) NOT NULL, 객실정보 VARCHAR2(10), 날짜 DATE);
+사용자이름 VARCHAR2(10) NOT NULL, 나이 NUMBER(3) NOT NULL,
+성별 VARCHAR2(6) NOT NULL, PW VARCHAR2(12) NOT NULL,
+주소 VARCHAR2(40), 상세주소 VARCHAR2(15),
+사용자등급 VARCHAR2(10) DEFAULT '노말' CONSTRAINT USERINFO_GRADE_FK REFERENCES GRADESALE(사용자등급));
 
-
-
---객실정보
 CREATE TABLE ROOM
 (호수 NUMBER(4) CONSTRAINT ROOM_호수_PK PRIMARY KEY, 객실등급 VARCHAR2(15), 오션뷰 VARCHAR2(2),
 노래방 VARCHAR2(2), 욕조여부 VARCHAR2(2), 금액 NUMBER(6) NOT NULL, 이용인원 NUMBER(2));
 
---예약내용
 CREATE TABLE RESERVE
 (호수 NUMBER(4) CONSTRAINT RESERVE_호수_PK PRIMARY KEY,
-ID VARCHAR2(10) CONSTRAINT RESERVE_ID_FK REFERENCES USERINFO(ID), 입실시간 DATE, 퇴실시간 DATE, 총금액 NUMBER(7),
-CONSTRAINT RESERVE_호수_FK FOREIGN KEY (호수) REFERENCES ROOM(호수));
+ID VARCHAR2(10) CONSTRAINT RESERVE_ID_FK REFERENCES USERINFO(ID) ON DELETE CASCADE,
+입실시간 DATE, 퇴실시간 DATE, 총금액 NUMBER(7));
 
---사용자 이용내역
 CREATE TABLE DETAIL
 (NO NUMBER(5) CONSTRAINT DETAIL_NO_PK PRIMARY KEY,
 ID VARCHAR2(10) CONSTRAINT DETAIL_ID_FK REFERENCES USERINFO(ID),
 호수 NUMBER(4) CONSTRAINT DETAIL_호수_FK REFERENCES ROOM(호수),
 입실날짜 DATE, 퇴실날짜 DATE, 금액 NUMBER(6));
 
+CREATE TABLE COUNTGRADE
+(ID VARCHAR2(10) CONSTRAINT COUNTGRADE_ID_FK
+REFERENCES USERINFO(ID) ON DELETE CASCADE,
+CNT NUMBER(5));
+
+
+
+CREATE OR REPLACE TRIGGER GRADEUP
+AFTER INSERT ON RESERVE
+FOR EACH ROW
+DECLARE v_cnt NUMBER;
+BEGIN SELECT CNT INTO V_CNT FROM COUNTGRADE WHERE ID = :NEW.ID;
+UPDATE COUNTGRADE SET CNT = v_cnt + 1 WHERE ID = :NEW.ID;
+    IF v_cnt +1 >= 15 THEN
+        UPDATE USERINFO SET 사용자등급 = '플레티넘' WHERE ID = :NEW.ID;
+    ELSIF v_cnt +1 >= 12 THEN
+        UPDATE USERINFO SET 사용자등급 = '다이아' WHERE ID = :NEW.ID;
+    ELSIF v_cnt +1 >= 9 THEN
+        UPDATE USERINFO SET 사용자등급 = '골드' WHERE ID = :NEW.ID;
+    ELSIF v_cnt +1 >= 7 THEN
+        UPDATE USERINFO SET 사용자등급 = '실버' WHERE ID = :NEW.ID;
+    ELSIF v_cnt + 1 >= 5 THEN
+        UPDATE USERINFO SET 사용자등급 = '브론즈' WHERE ID = :NEW.ID;
+    END IF;
+END;
+
+CREATE OR REPLACE TRIGGER GRADESET
+AFTER INSERT ON USERINFO
+FOR EACH ROW
+BEGIN INSERT INTO COUNTGRADE (ID,CNT)
+VALUES (:NEW.ID,0);
+END;
+
+drop table USERINFO;
+drop table RESERVE;
+drop table ROOM;
+drop table DETAIL;
+drop table GRADESALE;
+drop table COUNTGRADE;
+
+
+
+select * from countgrade;
+
+SELECT * from USERINFO;
+
+commit;
+
+
+DROP TRIGGER GRADEDEL;
+
+
+
+select * from countgrade;
+
+PURGE RECYCLEBIN;
+
+--sqlplus
+
+commit;
 DESC ROOM;
 DESC GRADESALE;
 DESC USERINFO;
-DESC REVIEW;
 DESC RESERVE;
 DESC DETAIL;
+
+select * from countgrade;
 
 SELECT * FROM USER_CONSTRAINTS;
 
@@ -70,6 +121,7 @@ INSERT INTO ROOM VALUES (504, '파티룸', 'O', 'O', 'O', 70000, 6);
 INSERT INTO ROOM VALUES (505, '파티룸', 'X', 'O', 'O', 68000, 6);
 
 --등급, 횟수, 할인률
+INSERT INTO GRADESALE VALUES ('노말', 0, 0);
 INSERT INTO GRADESALE VALUES ('브론즈', 5, 3000);
 INSERT INTO GRADESALE VALUES ('실버', 7, 6000);
 INSERT INTO GRADESALE VALUES ('골드', 9, 8000);
@@ -78,58 +130,3 @@ INSERT INTO GRADESALE VALUES ('플레티넘', 15, 12000);
 
 commit;
 
-SELECT * FROM ROOM;
-DESC ROOM;
-
-SELECT * FROM GRADESALE;
-DESC GRADESALE;
-
-insert into gradesale values('노말',0,0);
-
-commit;
-
-SELECT * FROM REVIEW;
-DESC REVIEW;
-
-SELECT * FROM DETAIL;
-DESC DETAIL;
-
-SELECT * FROM USERINFO;
-
-alter table userinfo modify (사용자이름 VARCHAR2(10),성별 VARCHAR2(4),주소 VARCHAR2(40)); 
-
-DESC USERINFO;
-
-insert into userinfo values('a123','김',20,'man','a123','주소','상세주소','브론즈');
-insert into userinfo values('ab123','이',20,'man','ab123','주소','상세주소','다이아');
-
-SELECT * FROM RESERVE;
-DESC RESERVE;
-
-insert into reserve values(101,'a123','2023-05-05','2023-05-06',20000);
-insert into reserve values(201,'a123','2023-05-05','2023-05-06',50000);
-insert into reserve values(102,'ab123','2023-05-05','2023-05-06',30000);
-insert into reserve values(202,'ab123','2023-05-05','2023-05-06',30000);
-
-commit;
-select a.호수 호수,객실등급,오션뷰,노래방,욕조여부,금액,이용인원,b.호수 b호수 from room a,reserve b where a.호수 = b.호수;
-
-select a.호수 호수,객실등급,오션뷰,노래방,욕조여부,금액,이용인원,b.호수 b호수 from room a,reserve b 
-where a.호수 = b.호수(+) and b.호수 is null;
-
-SELECT 호수,입실시간,퇴실시간,총금액 FROM RESERVE where id = 'a123'; 
-
-select 호수,객실등급,오션뷰,노래방,욕조여부,금액,이용인원 from room where 호수 = 101;
-
-
-SELECT * FROM GRADESALE;
-SELECT * FROM RESERVE;
-DESC RESERVE;
-
-commit;
-
-select 금액 from room where 호수 = 501;
-select 할인율 from USERINFO a, GRADESALE b where a.ID='ab123' and a.사용자등급 = b.사용자등급;
-UPDATE reserve set 호수=501,입실시간='2025-05-09',퇴실시간='2025-05-10',총금액 = (select 금액 from room where 호수 = 501) - (select 할인율 from USERINFO a, GRADESALE b where a.ID='ab123' and a.사용자등급 = b.사용자등급) where 호수 = 202;
-
-ROLLBACK;
