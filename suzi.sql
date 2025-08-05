@@ -145,3 +145,28 @@ SELECT * FROM REVIEW@LINK_TEST;
 SELECT * FROM ROOM@LINK_TEST;
 SELECT * FROM DETAIL@LINK_TEST;
 SELECT * FROM GRADESALE@LINK_TEST;
+
+
+create table busInfo
+(plainNo char(15) primary key,
+busType number(1),		
+congetion number(1),
+gpsX number,
+gpsY number,
+stopFlag number(1),
+isFullFlag number(1),
+isrunyn number(1),
+islastyn number(1),
+dataTm char(14),
+nextStTm number,
+lastStnId char(9),
+nextStId char(9),
+sectOrd number,
+fullSectDist number,
+sectDist number);
+
+
+select * from BUSINFO;
+
+
+
